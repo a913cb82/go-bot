@@ -17,7 +17,7 @@ class MockBot(Bot):
         pass
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio  # type: ignore  # type: ignore
 async def test_game_manager_routing() -> None:
     client = MagicMock()
     client.user_id = 123
@@ -63,7 +63,7 @@ async def test_game_manager_routing() -> None:
     client.submit_move.assert_called()
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio  # type: ignore  # type: ignore
 async def test_game_manager_run_forever(mocker) -> None:
     client = MagicMock()
     client.connect = AsyncMock()
@@ -92,3 +92,68 @@ async def test_game_manager_run_forever(mocker) -> None:
     # Ensure cleanup is called
     bot.stop.assert_called_once()
     client.disconnect.assert_called_once()
+
+
+@pytest.mark.asyncio  # type: ignore  # type: ignore
+async def test_game_manager_malformed_events() -> None:
+    client = MagicMock()
+    client.user_id = 123
+    bot = MockBot()
+    manager = GameManager(client, bot)
+
+    # 1. Game Started with missing/wrong user ID
+    # Neither black nor white matches our user_id
+    bad_start_data = {
+        "game_id": 999,
+        "width": 19,
+        "black": {"id": 888},
+        "white": {"id": 777},
+    }
+    await manager._handle_game_started(bad_start_data)
+    assert "999" not in manager.sessions
+
+    # 2. Move for unknown game
+    await manager._handle_game_move("unknown_id", {"move": 10, "color": "black"})
+    # Should just log warning and return
+
+    # 3. Move with missing data
+    manager.sessions["valid_id"] = GameSession("valid_id", 19)
+    await manager._handle_game_move("valid_id", {"color": "black"})  # Missing move
+    await manager._handle_game_move("valid_id", {"move": 10})  # Missing color
+
+    # 4. Unknown move format (e.g. dict?)
+    await manager._handle_game_move(
+        "valid_id", {"move": {"weird": "format"}, "color": "black"}
+    )
+    # Should not crash, just default to -1, -1 which is pass
+
+    # Verify pass was applied for the weird format
+    session = manager.sessions["valid_id"]
+    assert len(session.moves) == 1
+    assert session.moves[0] == ("black", -1, -1)
+
+        # 5. Test Error in _consider_move
+
+        # Force bot to raise exception
+
+        # bot is a Mock object here, so we can just set the side_effect on the method mock
+
+        bot.get_move.side_effect = Exception("Bot exploded")
+
+        
+
+        # Set turn so consider_move is called
+
+        manager.my_colors["valid_id"] = "black"
+
+        session.turn = "black"
+
+        
+
+        # Should log error but not crash
+
+        await manager._consider_move(session)
+
+        # If we are here, it caught the exception
+
+    
