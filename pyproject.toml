@@ -3,7 +3,18 @@ name = "go_bot"
 version = "0.1.0"
 description = "A bot for something"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "sgfmill",
+    "httpx",
+    "python-socketio",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -82,3 +93,7 @@ no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = "sgfmill.*"
+ignore_missing_imports = true

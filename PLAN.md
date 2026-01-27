@@ -3,11 +3,11 @@
 This plan breaks down the development of the OGS bot into logical phases, following the architecture defined in `ARCHITECTURE.md`.
 
 ## Phase 1: Core Logic & Board Representation
-- [ ] Initialize project structure (package layout in `src/`).
-- [ ] Integrate `sgfmill` for board state and coordinate translation.
-- [ ] Implement `GameSession` to track game state (board, moves, turn).
-- [ ] Create a simple `random_gtp.py` script that acts as a GTP-compliant engine.
-- [ ] **Test:** Unit tests for move validation and coordinate conversion (OGS <-> GTP).
+- [x] Initialize project structure (package layout in `src/`).
+- [x] Integrate `sgfmill` for board state and coordinate translation.
+- [x] Implement `GameSession` to track game state (board, moves, turn).
+- [x] Create a simple `random_gtp.py` script that acts as a GTP-compliant engine.
+- [x] **Test:** Unit tests for move validation and coordinate conversion (OGS <-> GTP).
 
 ## Phase 2: Bot Interface & GTP Support
 - [ ] Define the `Bot` abstract base class (standardizing on GTP-like interaction).
