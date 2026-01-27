@@ -1,4 +1,11 @@
-from go_bot.coords import ogs_to_gtp, gtp_to_ogs, int_to_ogs_coords, ogs_coords_to_int
+from go_bot.coords import (
+    ogs_to_gtp,
+    gtp_to_ogs,
+    int_to_ogs_coords,
+    ogs_coords_to_int,
+    ogs_to_str,
+    str_to_ogs,
+)
 from go_bot.session import GameSession
 
 
@@ -20,6 +27,16 @@ def test_int_coords() -> None:
     assert ogs_coords_to_int(0, 5, 19) == 5
     assert ogs_coords_to_int(1, 0, 19) == 19
     assert int_to_ogs_coords(19, 19) == (1, 0)
+
+
+def test_ogs_string_coords() -> None:
+    assert ogs_to_str(0, 0) == "aa"
+    assert ogs_to_str(3, 15) == "pd"
+    assert ogs_to_str(-1, -1) == ""
+
+    assert str_to_ogs("aa") == (0, 0)
+    assert str_to_ogs("pd") == (3, 15)
+    assert str_to_ogs("") == (-1, -1)
 
 
 def test_game_session() -> None:

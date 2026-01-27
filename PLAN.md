@@ -16,10 +16,10 @@ This plan breaks down the development of the OGS bot into logical phases, follow
 - [x] **Test:** Integration test between `GameSession` and `GTPBot` using the `random_gtp.py` engine.
 
 ## Phase 3: OGS Connectivity (The Network Layer)
-- [ ] Implement `OGSClient` using `httpx` for REST (authentication, challenges).
-- [ ] Implement Socket.IO integration for real-time game events.
-- [ ] Implement coordinate parsing for OGS's specific move formats.
-- [ ] **Test:** Mocked OGS server tests to verify event handling and move submission.
+- [x] Implement `OGSClient` using `httpx` for REST (authentication, challenges).
+- [x] Implement Socket.IO integration for real-time game events.
+- [x] Implement coordinate parsing for OGS's specific move formats.
+- [x] **Test:** Mocked OGS server tests to verify event handling and move submission.
 
 ## Phase 4: Orchestration (The GameManager)
 - [ ] Implement `GameManager` to route events from `OGSClient` to `GameSessions`.

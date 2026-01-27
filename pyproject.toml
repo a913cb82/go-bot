@@ -14,6 +14,8 @@ dev = [
     "pytest",
     "pytest-asyncio",
     "pytest-timeout",
+    "pytest-mock",
+    "respx",
     "ruff",
     "mypy",
 ]
@@ -102,4 +104,8 @@ show_error_codes = true
 
 [[tool.mypy.overrides]]
 module = "sgfmill.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "socketio.*"
 ignore_missing_imports = true
