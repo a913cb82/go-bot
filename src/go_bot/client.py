@@ -3,6 +3,7 @@ import logging
 import httpx
 import socketio
 from typing import Any, Dict, Optional, Callable, Awaitable
+from go_bot.coords import gtp_to_ogs, ogs_coords_to_int
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,10 @@ class OGSClient:
             if self.on_game_started:
                 await self.on_game_started(data)
 
+    async def _handle_game_move(self, game_id: str, data: Dict[str, Any]) -> None:
+        if self.on_game_move:
+            await self.on_game_move(game_id, data)
+
     async def connect(self) -> None:
         """Fetch user info and connect Socket.IO."""
         # Get user profile
@@ -70,26 +75,16 @@ class OGSClient:
         """Connect to a specific game's events."""
         await self.sio.emit("game/connect", {"game_id": game_id})
 
-        # Listen for moves in this game
         @self.sio.on(f"game/{game_id}/move")  # type: ignore
         async def on_move(data: Dict[str, Any]) -> None:
-            if self.on_game_move:
-                await self.on_game_move(game_id, data)
+            await self._handle_game_move(game_id, data)
+
+        @self.sio.on(f"game/{game_id}/gamedata")  # type: ignore
+        async def on_gamedata(data: Dict[str, Any]) -> None:
+            pass
 
     async def submit_move(self, game_id: str, move_gtp: str, board_size: int) -> None:
         """Submit a move to OGS."""
-        # OGS move format depends on the game, but usually it's coordinate indices or pass
-        # For simplicity, we assume we convert GTP back to OGS format.
-        # However, OGS socket uses a specific format for moves.
-        # For now, we'll implement a placeholder that emits the 'game/move' event.
-        # See OGS docs: game/move expects { game_id, move }
-        # Move can be a string like "pd" (for 19x19) or integer index.
-
-        # Placeholder for coordinate conversion back to OGS string/int
-        # OGS uses 2-char string for 19x19 (a-t, skip nothing) or integer.
-        # Let's use integer for now as it's more universal in OGS API.
-        from go_bot.coords import gtp_to_ogs, ogs_coords_to_int
-
         row, col = gtp_to_ogs(move_gtp, board_size)
         pos = ogs_coords_to_int(row, col, board_size)
 

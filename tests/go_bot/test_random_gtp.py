@@ -4,7 +4,7 @@ from go_bot.bot import GTPBot
 from go_bot.session import GameSession
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore
 async def test_random_gtp_edge_cases() -> None:
     # Use the absolute path to ensure the engine is found
     engine_path = os.path.abspath("src/go_bot/random_gtp.py")
@@ -62,7 +62,7 @@ async def test_random_gtp_edge_cases() -> None:
         await bot.stop()
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio  # type: ignore
 async def test_random_gtp_illegal_play_command() -> None:
     # Test that 'play' with an illegal move returns an error and doesn't crash
     engine_path = os.path.abspath("src/go_bot/random_gtp.py")

@@ -22,10 +22,10 @@ This plan breaks down the development of the OGS bot into logical phases, follow
 - [x] **Test:** Mocked OGS server tests to verify event handling and move submission.
 
 ## Phase 4: Orchestration (The GameManager)
-- [ ] Implement `GameManager` to route events from `OGSClient` to `GameSessions`.
-- [ ] Implement game-seeking logic (periodically checking for/creating challenges).
-- [ ] Implement basic error handling and reconnection logic.
-- [ ] **Test:** End-to-end "Dry Run" where the bot logs moves without submitting them to OGS.
+- [x] Implement `GameManager` to route events from `OGSClient` to `GameSessions`.
+- [x] Implement game-seeking logic (periodically checking for/creating challenges).
+- [x] Implement basic error handling and reconnection logic.
+- [x] **Test:** End-to-end "Dry Run" where the bot logs moves without submitting them to OGS.
 
 ## Phase 5: KataGo Human SL Integration
 - [ ] Configure `GTPBot` specifically for KataGo's Human SL network weights.
