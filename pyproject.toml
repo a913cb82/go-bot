@@ -15,6 +15,7 @@ dev = [
     "pytest-asyncio",
     "pytest-timeout",
     "pytest-mock",
+    "pytest-cov",
     "respx",
     "ruff",
     "mypy",

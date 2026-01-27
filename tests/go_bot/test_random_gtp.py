@@ -6,9 +6,10 @@ from go_bot.session import GameSession
 
 @pytest.mark.asyncio  # type: ignore
 async def test_random_gtp_edge_cases() -> None:
-    # Use the absolute path to ensure the engine is found
+    # Use 'coverage run' to wrap the engine execution
     engine_path = os.path.abspath("src/go_bot/random_gtp.py")
-    bot = GTPBot(engine_path)
+    # We use -a to append to the current .coverage file
+    bot = GTPBot("coverage", ["run", "-a", engine_path])
     await bot.start()
 
     try:
@@ -66,7 +67,7 @@ async def test_random_gtp_edge_cases() -> None:
 async def test_random_gtp_illegal_play_command() -> None:
     # Test that 'play' with an illegal move returns an error and doesn't crash
     engine_path = os.path.abspath("src/go_bot/random_gtp.py")
-    bot = GTPBot(engine_path)
+    bot = GTPBot("coverage", ["run", "-a", engine_path])
     await bot.start()
 
     try:

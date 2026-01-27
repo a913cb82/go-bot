@@ -1,4 +1,5 @@
 import pytest
+import asyncio
 from unittest.mock import AsyncMock, MagicMock
 from go_bot.manager import GameManager
 from go_bot.session import GameSession
@@ -41,12 +42,6 @@ async def test_game_manager_routing() -> None:
     assert manager.my_colors["456"] == "black"
     client.join_game.assert_called_with("456")
 
-    # Simulate move by opponent (white)
-    # Since we are black, we might have moved first, but let's assume opponent moved.
-    # Wait, if we are black, it's our turn at start.
-    # But usually we get gamedata or move event.
-
-    # Test turn logic
     session = manager.sessions["456"]
     assert session.turn == "black"
 
@@ -66,3 +61,34 @@ async def test_game_manager_routing() -> None:
 
     assert session.turn == "black"  # It's our turn again
     client.submit_move.assert_called()
+
+
+@pytest.mark.asyncio  # type: ignore
+async def test_game_manager_run_forever(mocker) -> None:
+    client = MagicMock()
+    client.connect = AsyncMock()
+    client.disconnect = AsyncMock()
+    client.create_challenge = AsyncMock()
+    client.user_id = 123
+
+    bot = MagicMock(spec=Bot)
+    bot.start = AsyncMock()
+    bot.stop = AsyncMock()
+
+    manager = GameManager(client, bot)
+
+    # We want to run run_forever but break out of it.
+    mocker.patch("asyncio.sleep", side_effect=[None, asyncio.CancelledError()])
+
+    try:
+        await manager.run_forever()
+    except asyncio.CancelledError:
+        pass
+
+    client.connect.assert_called_once()
+    bot.start.assert_called_once()
+    client.create_challenge.assert_called()
+
+    # Ensure cleanup is called
+    bot.stop.assert_called_once()
+    client.disconnect.assert_called_once()

@@ -8,7 +8,7 @@ from go_bot.session import GameSession
 async def test_gtp_bot_integration() -> None:
     # Use the absolute path to ensure the engine is found
     engine_path = os.path.abspath("src/go_bot/random_gtp.py")
-    bot = GTPBot(engine_path)
+    bot = GTPBot("coverage", ["run", "-a", engine_path])
 
     await bot.start()
     try:
