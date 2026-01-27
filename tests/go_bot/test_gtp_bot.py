@@ -4,7 +4,7 @@ from go_bot.bot import GTPBot
 from go_bot.session import GameSession
 
 
-@pytest.mark.asyncio  # type: ignore
+@pytest.mark.asyncio
 async def test_gtp_bot_integration() -> None:
     # Use the absolute path to ensure the engine is found
     engine_path = os.path.abspath("src/go_bot/random_gtp.py")

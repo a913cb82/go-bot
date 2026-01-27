@@ -39,35 +39,51 @@ def main() -> None:
                 f"={cmdid} protocol_version\nname\nversion\nlist_commands\nboardsize\nclear_board\nplay\ngenmove\nquit\n"
             )
         elif command == "boardsize":
-            board_size = int(args[0])
-            board = boards.Board(board_size)
-            print(f"={cmdid}\n")
+            try:
+                board_size = int(args[0])
+                board = boards.Board(board_size)
+                print(f"={cmdid}\n")
+            except Exception:
+                print(f"?{cmdid} invalid boardsize\n")
         elif command == "clear_board":
             board = boards.Board(board_size)
             print(f"={cmdid}\n")
         elif command == "play":
-            # Just acknowledge for now, maybe track state if we want better random
-            # args[0] is color, args[1] is coord
-            color = "b" if args[0].lower() == "black" else "w"
-            coord = args[1].upper()
-            if coord != "PASS":
-                col_str = coord[0]
-                row_str = coord[1:]
-                c = letters.index(col_str)
-                r = int(row_str) - 1
-                try:
+            try:
+                color = "b" if args[0].lower() == "black" else "w"
+                coord = args[1].upper()
+                if coord != "PASS":
+                    col_str = coord[0]
+                    row_str = coord[1:]
+                    if col_str not in letters:
+                        raise ValueError("Invalid column")
+                    c = letters.index(col_str)
+                    r = int(row_str) - 1
                     board.play(c, r, color)
-                except ValueError:
-                    pass  # Illegal move in GTP usually returns error, but we're simple
-            print(f"={cmdid}\n")
+                print(f"={cmdid}\n")
+            except Exception as e:
+                # GTP standard says to return error for illegal moves
+                print(f"?{cmdid} illegal move: {str(e)}\n")
         elif command == "genmove":
+            color = "b" if args[0].lower() == "black" else "w"
+
             legal_moves = []
             for r in range(board_size):
                 for c in range(board_size):
                     if board.get(c, r) is None:
-                        legal_moves.append((c, r))
+                        # Test if move is legal by trying to play it on a copy
+                        test_board = board.copy()
+                        try:
+                            test_board.play(c, r, color)
+                            # Suicide check: if the point we just played is empty,
+                            # it means it was captured (suicide) because sgfmill allows it.
+                            if test_board.get(c, r) is None:
+                                continue
+                            legal_moves.append((c, r))
+                        except ValueError:
+                            # Illegal move (Ko)
+                            continue
 
-            color = "b" if args[0].lower() == "black" else "w"
             if not legal_moves:
                 move_str = "pass"
             else:
