@@ -48,7 +48,7 @@ def main() -> None:
         elif command == "play":
             # Just acknowledge for now, maybe track state if we want better random
             # args[0] is color, args[1] is coord
-            color = args[0].lower()
+            color = "b" if args[0].lower() == "black" else "w"
             coord = args[1].upper()
             if coord != "PASS":
                 col_str = coord[0]
@@ -67,12 +67,13 @@ def main() -> None:
                     if board.get(c, r) is None:
                         legal_moves.append((c, r))
 
+            color = "b" if args[0].lower() == "black" else "w"
             if not legal_moves:
                 move_str = "pass"
             else:
                 c, r = random.choice(legal_moves)
                 move_str = f"{letters[c]}{r+1}"
-                board.play(c, r, args[0].lower())
+                board.play(c, r, color)
 
             print(f"={cmdid} {move_str}\n")
         elif command == "quit":

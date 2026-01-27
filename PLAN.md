@@ -10,10 +10,10 @@ This plan breaks down the development of the OGS bot into logical phases, follow
 - [x] **Test:** Unit tests for move validation and coordinate conversion (OGS <-> GTP).
 
 ## Phase 2: Bot Interface & GTP Support
-- [ ] Define the `Bot` abstract base class (standardizing on GTP-like interaction).
-- [ ] Implement `GTPBot` to manage a subprocess.
-- [ ] Implement GTP synchronization logic (sending `play` sequences to catch up the engine state).
-- [ ] **Test:** Integration test between `GameSession` and `GTPBot` using the `random_gtp.py` engine.
+- [x] Define the `Bot` abstract base class (standardizing on GTP-like interaction).
+- [x] Implement `GTPBot` to manage a subprocess.
+- [x] Implement GTP synchronization logic (sending `play` sequences to catch up the engine state).
+- [x] **Test:** Integration test between `GameSession` and `GTPBot` using the `random_gtp.py` engine.
 
 ## Phase 3: OGS Connectivity (The Network Layer)
 - [ ] Implement `OGSClient` using `httpx` for REST (authentication, challenges).
