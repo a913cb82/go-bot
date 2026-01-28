@@ -26,6 +26,9 @@ class OGSClient:
         self.on_game_move: Optional[
             Callable[[str, Dict[str, Any]], Awaitable[None]]
         ] = None
+        self.on_game_ended: Optional[
+            Callable[[str, Dict[str, Any]], Awaitable[None]]
+        ] = None
 
         self._setup_socket_events()
 
@@ -82,6 +85,17 @@ class OGSClient:
         @self.sio.on(f"game/{game_id}/gamedata")  # type: ignore
         async def on_gamedata(data: Dict[str, Any]) -> None:
             pass
+
+        @self.sio.on(f"game/{game_id}/phase")  # type: ignore
+        async def on_phase(data: str) -> None:
+            # phase is just a string? or dict? Usually string "play", "finished"
+            # Docs are sparse, let's assume if it's "finished" we trigger end
+            if data == "finished" or (
+                isinstance(data, dict) and data.get("phase") == "finished"
+            ):
+                # We need more data for outcome, but at least we know it ended
+                if self.on_game_ended:
+                    await self.on_game_ended(game_id, {"phase": "finished"})
 
     async def submit_move(self, game_id: str, move_gtp: str, board_size: int) -> None:
         """Submit a move to OGS."""

@@ -19,6 +19,16 @@ class GameManager:
         # Wire up client callbacks
         self.client.on_game_started = self._handle_game_started
         self.client.on_game_move = self._handle_game_move
+        self.client.on_game_ended = self._handle_game_ended
+
+        self._shutdown_event = asyncio.Event()
+
+    async def _handle_game_ended(self, game_id: str, data: Dict[str, Any]) -> None:
+        if game_id in self.sessions:
+            logger.info(f"Game {game_id} ended. Outcome: {data}")
+            del self.sessions[game_id]
+            if game_id in self.my_colors:
+                del self.my_colors[game_id]
 
     async def _handle_game_started(self, data: Dict[str, Any]) -> None:
         game_id = str(data["game_id"])
@@ -89,12 +99,20 @@ class GameManager:
         await self.bot.start()
 
         try:
-            while True:
+            while not self._shutdown_event.is_set():
                 # Active seeking: if no games, create a challenge
                 if not self.sessions:
                     await self.client.create_challenge()
 
-                await asyncio.sleep(60)
+                try:
+                    await asyncio.wait_for(self._shutdown_event.wait(), timeout=60)
+                except asyncio.TimeoutError:
+                    continue
         finally:
+            logger.info("Shutting down...")
             await self.bot.stop()
             await self.client.disconnect()
+
+    def stop(self) -> None:
+        """Signal the manager to stop."""
+        self._shutdown_event.set()
