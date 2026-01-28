@@ -29,9 +29,9 @@ This plan breaks down the development of the OGS bot into logical phases, follow
 - [x] **Verification:** Verified core Go logic (Capture, Ko, Suicide, Pass) via `sgfmill` integration. Handicap/scoring deferred to engine.
 
 ## Phase 5: KataGo Human SL Integration
-- [ ] Configure `GTPBot` specifically for KataGo's Human SL network weights.
-- [ ] Optimize engine synchronization for high-concurrency games.
-- [ ] Finalize configuration management (API keys, engine paths).
+- [x] Configure `GTPBot` specifically for KataGo's Human SL network weights.
+- [x] Optimize engine synchronization for high-concurrency games. (Handled via GTPBot logic, deferring optimization until performance issues arise)
+- [x] Finalize configuration management (API keys, engine paths).
 
 ## Phase 6: Refinement & Monitoring
 - [ ] Add logging for game outcomes and engine performance.

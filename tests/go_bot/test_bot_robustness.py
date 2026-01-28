@@ -4,7 +4,7 @@ from go_bot.bot import GTPBot
 from go_bot.session import GameSession
 
 
-@pytest.mark.asyncio  # type: ignore  # type: ignore
+@pytest.mark.asyncio  # type: ignore
 async def test_bot_crash_handling() -> None:
     engine_path = os.path.abspath("tests/go_bot/bad_engine.py")
     bot = GTPBot("coverage", ["run", "-a", engine_path])
@@ -25,7 +25,7 @@ async def test_bot_crash_handling() -> None:
     await bot.stop()
 
 
-@pytest.mark.asyncio  # type: ignore  # type: ignore
+@pytest.mark.asyncio  # type: ignore
 async def test_bot_partial_response() -> None:
     engine_path = os.path.abspath("tests/go_bot/bad_engine.py")
     bot = GTPBot("coverage", ["run", "-a", engine_path])

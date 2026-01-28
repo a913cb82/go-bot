@@ -3,10 +3,11 @@ import respx
 import httpx
 from unittest.mock import AsyncMock
 from go_bot.client import OGSClient
+from pytest_mock import MockerFixture
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_ogs_client_connect_full(mocker) -> None:
+async def test_ogs_client_connect_full(mocker: MockerFixture) -> None:
     # Mock socketio.AsyncClient
     mock_sio = mocker.patch("socketio.AsyncClient", autospec=True).return_value
     mock_sio.connect = AsyncMock()
@@ -50,7 +51,7 @@ async def test_ogs_client_create_challenge() -> None:
 
 
 @pytest.mark.asyncio  # type: ignore
-async def test_ogs_client_socket_events(mocker) -> None:
+async def test_ogs_client_socket_events(mocker: MockerFixture) -> None:
     mock_sio = mocker.patch("socketio.AsyncClient", autospec=True).return_value
     client = OGSClient(api_key="test_key")
 

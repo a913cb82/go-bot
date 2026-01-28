@@ -70,8 +70,11 @@ class GTPBot(Bot):
                     pass
             finally:
                 if self.process.returncode is None:
-                    self.process.terminate()
-                    await self.process.wait()
+                    try:
+                        self.process.terminate()
+                        await self.process.wait()
+                    except ProcessLookupError:
+                        pass
                 self.process = None
 
     async def _send_command(self, command: str) -> str:
@@ -98,8 +101,6 @@ class GTPBot(Bot):
             if line.startswith("=") or line.startswith("?"):
                 # Standard GTP response: one line starting with = or ?,
                 # followed by optional lines, ending with a double newline.
-                # However, many engines send =/?, then some text, then \n\n.
-                # If the line already contains = or ?, it's the start.
                 pass
 
         full_response = "\n".join(response_lines)
@@ -126,3 +127,25 @@ class GTPBot(Bot):
             color = "black" if session.turn == "black" else "white"
             move = await self._send_command(f"genmove {color}")
             return move
+
+
+class KataGoBot(GTPBot):
+    def __init__(
+        self,
+        katago_path: str,
+        config_path: str,
+        model_path: str,
+        human_model_path: Optional[str] = None,
+        rank: str = "5k",
+    ):
+        args = ["gtp", "-config", config_path, "-model", model_path]
+        if human_model_path:
+            args.extend(["-human-model", human_model_path])
+
+        # Override the rank in the config
+        # Format: rank_5k, rank_1d, etc.
+        # We assume the user passes "5k", "1d", etc.
+        profile = f"rank_{rank}"
+        args.extend(["-override-config", f"humanSLProfile={profile}"])
+
+        super().__init__(katago_path, args)

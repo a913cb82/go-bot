@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 from go_bot.manager import GameManager
 from go_bot.session import GameSession
 from go_bot.bot import Bot
+from pytest_mock import MockerFixture
 
 
 class MockBot(Bot):
@@ -17,7 +18,7 @@ class MockBot(Bot):
         pass
 
 
-@pytest.mark.asyncio  # type: ignore  # type: ignore
+@pytest.mark.asyncio  # type: ignore
 async def test_game_manager_routing() -> None:
     client = MagicMock()
     client.user_id = 123
@@ -63,8 +64,8 @@ async def test_game_manager_routing() -> None:
     client.submit_move.assert_called()
 
 
-@pytest.mark.asyncio  # type: ignore  # type: ignore
-async def test_game_manager_run_forever(mocker) -> None:
+@pytest.mark.asyncio  # type: ignore
+async def test_game_manager_run_forever(mocker: MockerFixture) -> None:
     client = MagicMock()
     client.connect = AsyncMock()
     client.disconnect = AsyncMock()
@@ -94,8 +95,8 @@ async def test_game_manager_run_forever(mocker) -> None:
     client.disconnect.assert_called_once()
 
 
-@pytest.mark.asyncio  # type: ignore  # type: ignore
-async def test_game_manager_malformed_events(mocker) -> None:
+@pytest.mark.asyncio  # type: ignore
+async def test_game_manager_malformed_events(mocker: MockerFixture) -> None:
     client = MagicMock()
     client.user_id = 123
     bot = MockBot()
