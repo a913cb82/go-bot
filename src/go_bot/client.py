@@ -35,16 +35,6 @@ class OGSClient:
 
             # For OGS, we need the cookies or an API key.
             # If we login via /api/v0/login, we get cookies.
-            # However, the rest of our app expects a 'Bearer' token or API Key.
-            # OGS allows generating an API key once logged in.
-            # But more simply, we can just use the cookies for subsequent requests.
-            # Let's adjust OGSClient to support cookie-based auth or fetch the token.
-
-            # Fetch /api/v1/ui/bot/generateAPIKey or similar if needed,
-            # but usually bots just use the API Key from the profile.
-
-            # For now, let's assume we can use the cookies from this session.
-            # We'll return an OGSClient that uses these cookies.
             return cls(api_key="", base_url=base_url, cookies=client.cookies)
 
     def __init__(
@@ -119,21 +109,31 @@ class OGSClient:
         # If we logged in via cookies, we might not have an api_key for Socket.IO.
         # Socket.IO 'authenticate' event expects the API Key (bot token).
         if not self.api_key:
-            logger.info("Fetching API Key for Socket.IO authentication...")
-            # This endpoint returns the bot API key if logged in
-            resp_key = await self.client.get("/api/v1/ui/bot")
-            if resp_key.status_code == 200:
-                self.api_key = resp_key.json().get("apikey", "")
-
-            if not self.api_key:
-                logger.warning(
-                    "Could not fetch API Key. Socket.IO authentication might fail."
-                )
+            logger.info("Attempting to fetch bot configuration for Socket.IO...")
+            try:
+                resp_key = await self.client.get("/api/v1/ui/bot")
+                if resp_key.status_code == 200:
+                    self.api_key = resp_key.json().get("apikey", "")
+                    logger.info("Successfully retrieved API Key.")
+                else:
+                    logger.warning(
+                        f"Could not fetch API Key (Status: {resp_key.status_code})."
+                    )
+            except Exception as e:
+                logger.warning(f"Failed to fetch bot config: {e}")
 
         # Connect Socket.IO
-        await self.sio.connect(
-            f"{self.base_url}", transports=["websocket"], socketio_path="/socket.io"
-        )
+        logger.info(f"Connecting to Socket.IO at {self.base_url}...")
+        try:
+            await self.sio.connect(
+                f"{self.base_url}",
+                transports=["websocket"],
+                socketio_path="/socket.io",
+                wait_timeout=30,
+            )
+        except Exception as e:
+            logger.error(f"Socket.IO connection failed: {e}")
+            raise
 
     async def disconnect(self) -> None:
         await asyncio.gather(self.client.aclose(), self.sio.disconnect())

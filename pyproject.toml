@@ -8,6 +8,7 @@ dependencies = [
     "httpx",
     "python-socketio",
     "python-dotenv",
+    "aiohttp",
 ]
 
 [project.optional-dependencies]
