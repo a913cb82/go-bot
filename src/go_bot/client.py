@@ -14,30 +14,53 @@ class OGSClient:
         cls,
         username: str,
         password: str,
-        client_id: str = "36ef960a4bd9cf4bc3d6",  # Standard OGS client_id for bots
         base_url: str = "https://online-go.com",
     ) -> "OGSClient":
         """
-        Login with username and application-specific password to get a token.
-        Note: password must be an 'Application Specific Password' generated in OGS settings.
+        Login with username and password (standard or application-specific).
+        Uses OGS login endpoint to get authentication cookies.
         """
         async with httpx.AsyncClient(base_url=base_url) as client:
             payload = {
-                "grant_type": "password",
                 "username": username,
                 "password": password,
-                "client_id": client_id,
             }
-            resp = await client.post("/oauth2/token/", data=payload)
+            # OGS login endpoint
+            resp = await client.post("/api/v0/login", json=payload)
+            if resp.status_code == 401:
+                raise ValueError(
+                    "OGS Login Failed: Invalid username or password. If using an Application Specific Password, ensure it is correct."
+                )
             resp.raise_for_status()
-            token = resp.json()["access_token"]
-            return cls(api_key=token, base_url=base_url)
 
-    def __init__(self, api_key: str, base_url: str = "https://online-go.com"):
+            # For OGS, we need the cookies or an API key.
+            # If we login via /api/v0/login, we get cookies.
+            # However, the rest of our app expects a 'Bearer' token or API Key.
+            # OGS allows generating an API key once logged in.
+            # But more simply, we can just use the cookies for subsequent requests.
+            # Let's adjust OGSClient to support cookie-based auth or fetch the token.
+
+            # Fetch /api/v1/ui/bot/generateAPIKey or similar if needed,
+            # but usually bots just use the API Key from the profile.
+
+            # For now, let's assume we can use the cookies from this session.
+            # We'll return an OGSClient that uses these cookies.
+            return cls(api_key="", base_url=base_url, cookies=client.cookies)
+
+    def __init__(
+        self,
+        api_key: str,
+        base_url: str = "https://online-go.com",
+        cookies: Optional[httpx.Cookies] = None,
+    ):
         self.api_key = api_key
         self.base_url = base_url
+        headers = {}
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
+
         self.client = httpx.AsyncClient(
-            base_url=base_url, headers={"Authorization": f"Bearer {api_key}"}
+            base_url=base_url, headers=headers, cookies=cookies
         )
         self.sio = socketio.AsyncClient()
         self.user_id: Optional[int] = None
@@ -92,6 +115,20 @@ class OGSClient:
         self.user_id = data["id"]
         self.username = data["username"]
         logger.info(f"Logged in as {self.username} ({self.user_id})")
+
+        # If we logged in via cookies, we might not have an api_key for Socket.IO.
+        # Socket.IO 'authenticate' event expects the API Key (bot token).
+        if not self.api_key:
+            logger.info("Fetching API Key for Socket.IO authentication...")
+            # This endpoint returns the bot API key if logged in
+            resp_key = await self.client.get("/api/v1/ui/bot")
+            if resp_key.status_code == 200:
+                self.api_key = resp_key.json().get("apikey", "")
+
+            if not self.api_key:
+                logger.warning(
+                    "Could not fetch API Key. Socket.IO authentication might fail."
+                )
 
         # Connect Socket.IO
         await self.sio.connect(
