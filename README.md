@@ -20,38 +20,36 @@ First, download the required KataGo models and generate the configuration:
 python3 scripts/fetch_models.py
 ```
 
-### 2. OGS Credentials
+### 2. OGS Credentials & Configuration
+Copy the example environment file and fill in your credentials:
+```bash
+cp .env.example .env
+# Edit .env with your OGS_API_KEY or OGS_USERNAME/OGS_PASSWORD
+```
+
 You can connect using either an API Key (recommended) or an Application Specific Password.
 
 #### Option A: API Key (Recommended)
 1. Create a bot account on OGS.
 2. Request bot status from OGS moderators.
 3. Go to the bot's profile and generate an API Key.
-4. Set the environment variable: `export OGS_API_KEY="your_api_key"`
+4. Set `OGS_API_KEY` in your `.env`.
 
-#### Option B: Username & Password
+#### Option B: Username & Application Password
 1. Go to OGS Settings -> "Application Specific Passwords".
 2. Generate a new password for the bot.
-3. Set environment variables:
-   ```bash
-   export OGS_USERNAME="your_username"
-   export OGS_PASSWORD="your_application_specific_password"
-   ```
+3. Set `OGS_USERNAME` and `OGS_PASSWORD` in your `.env`.
 
-### 3. Run the Bot
-Run the bot using the provided entry point:
+### 3. Run the Bot (Human SL KataGo)
+Ensure you have the `katago` binary installed and accessible. Then run the bot:
 
 ```bash
-# Run with KataGo (requires katago binary in PATH)
-export BOT_TYPE="katago"
-export KATAGO_PATH="/path/to/katago"
-export BOT_RANK="1d"
-python3 src/go_bot/main.py
-
-# Run with Random engine (for testing)
-export BOT_TYPE="random"
+# To play as a specific human rank, edit BOT_RANK in .env (e.g. 5k, 1d, 9d)
+# Then run the bot using the entry point:
 python3 src/go_bot/main.py
 ```
+
+The bot will automatically load the models from `models/` and use the robust `models/human.cfg` configuration for high-quality human imitation play.
 
 ## Development Setup
 

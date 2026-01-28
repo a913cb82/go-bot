@@ -2,9 +2,13 @@ import asyncio
 import logging
 import os
 import sys
+from dotenv import load_dotenv
 from go_bot.client import OGSClient
 from go_bot.manager import GameManager
 from go_bot.bot import Bot, KataGoBot, GTPBot
+
+# Load environment variables from .env file
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
