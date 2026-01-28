@@ -95,7 +95,7 @@ async def test_game_manager_run_forever(mocker) -> None:
 
 
 @pytest.mark.asyncio  # type: ignore  # type: ignore
-async def test_game_manager_malformed_events() -> None:
+async def test_game_manager_malformed_events(mocker) -> None:
     client = MagicMock()
     client.user_id = 123
     bot = MockBot()
@@ -132,28 +132,15 @@ async def test_game_manager_malformed_events() -> None:
     assert len(session.moves) == 1
     assert session.moves[0] == ("black", -1, -1)
 
-        # 5. Test Error in _consider_move
+    # 5. Test Error in _consider_move
+    # Force bot to raise exception
+    # Patch the get_move method on the bot instance
+    mocker.patch.object(bot, "get_move", side_effect=Exception("Bot exploded"))
 
-        # Force bot to raise exception
+    # Set turn so consider_move is called
+    manager.my_colors["valid_id"] = "black"
+    session.turn = "black"
 
-        # bot is a Mock object here, so we can just set the side_effect on the method mock
-
-        bot.get_move.side_effect = Exception("Bot exploded")
-
-        
-
-        # Set turn so consider_move is called
-
-        manager.my_colors["valid_id"] = "black"
-
-        session.turn = "black"
-
-        
-
-        # Should log error but not crash
-
-        await manager._consider_move(session)
-
-        # If we are here, it caught the exception
-
-    
+    # Should log error but not crash
+    await manager._consider_move(session)
+    # If we are here, it caught the exception

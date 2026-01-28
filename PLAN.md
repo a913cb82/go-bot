@@ -26,6 +26,7 @@ This plan breaks down the development of the OGS bot into logical phases, follow
 - [x] Implement game-seeking logic (periodically checking for/creating challenges).
 - [x] Implement basic error handling and reconnection logic.
 - [x] **Test:** End-to-end "Dry Run" where the bot logs moves without submitting them to OGS.
+- [x] **Verification:** Verified core Go logic (Capture, Ko, Suicide, Pass) via `sgfmill` integration. Handicap/scoring deferred to engine.
 
 ## Phase 5: KataGo Human SL Integration
 - [ ] Configure `GTPBot` specifically for KataGo's Human SL network weights.
