@@ -10,7 +10,13 @@ from go_bot.bot import Bot, KataGoBot, GTPBot
 # Load environment variables from .env file
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO)
+# Configure logging to both console and file
+log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+logging.basicConfig(
+    level=logging.INFO,
+    format=log_format,
+    handlers=[logging.FileHandler("go_bot.log"), logging.StreamHandler(sys.stdout)],
+)
 logger = logging.getLogger(__name__)
 
 

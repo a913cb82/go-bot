@@ -26,8 +26,11 @@ class GameManager:
 
     async def _handle_game_gamedata(self, game_id: str, data: Dict[str, Any]) -> None:
         board_size = data.get("width", 19)
+        game_url = f"https://online-go.com/game/{game_id}"
+
         if game_id not in self.sessions:
             self.sessions[game_id] = GameSession(game_id, board_size)
+            logger.info(f"Joined existing game: {game_url}")
 
         session = self.sessions[game_id]
 
@@ -45,13 +48,11 @@ class GameManager:
             self.my_colors[game_id] = "white"
 
         # Apply all moves from history
-        # OGS gamedata moves are usually in a list: data['moves']
         moves = data.get("moves", [])
         for i, move_data in enumerate(moves):
             color = "black" if i % 2 == 0 else "white"
             row, col = -1, -1
             if isinstance(move_data, list):
-                # OGS moves in history are [col, row, time, ...]
                 row, col = move_data[1], move_data[0]
             elif isinstance(move_data, int):
                 row, col = int_to_ogs_coords(move_data, board_size)
@@ -60,15 +61,21 @@ class GameManager:
 
             session.apply_move(color, row, col)
 
-        logger.info(f"Initialized game {game_id} with {len(moves)} moves history.")
+        logger.info(
+            f"Synchronized game {game_id} ({len(moves)} moves). History catch-up complete."
+        )
 
         # If it's our turn after catching up, consider moving
         if session.turn == self.my_colors.get(game_id):
+            logger.info(
+                f"It is our turn ({self.my_colors[game_id]}) in {game_url}. Generating move..."
+            )
             await self._consider_move(session)
 
     async def _handle_game_ended(self, game_id: str, data: Dict[str, Any]) -> None:
         if game_id in self.sessions:
-            logger.info(f"Game {game_id} ended. Outcome: {data}")
+            game_url = f"https://online-go.com/game/{game_id}"
+            logger.info(f"Game FINISHED: {game_url}. Outcome: {data}")
             del self.sessions[game_id]
             if game_id in self.my_colors:
                 del self.my_colors[game_id]
@@ -76,9 +83,9 @@ class GameManager:
     async def _handle_game_started(self, data: Dict[str, Any]) -> None:
         game_id = str(data["game_id"])
         board_size = data.get("width", 19)
+        game_url = f"https://online-go.com/game/{game_id}"
 
         # Determine our color
-        # In gameStarted, we usually see "black": { "id": ... } and "white": { "id": ... }
         black_id = data.get("black", {}).get("id")
         white_id = data.get("white", {}).get("id")
 
@@ -93,7 +100,7 @@ class GameManager:
             return
 
         logger.info(
-            f"Game started: {game_id} ({board_size}x{board_size}) as {self.my_colors[game_id]}"
+            f"Game STARTED: {game_url} ({board_size}x{board_size}) playing as {self.my_colors[game_id]}"
         )
 
         if game_id not in self.sessions:
@@ -121,20 +128,23 @@ class GameManager:
 
         session.apply_move(color, row, col)
 
+        game_url = f"https://online-go.com/game/{game_id}"
+        logger.info(f"Move in {game_url}: {color} played at ({row}, {col})")
+
         # Only consider move if it's our turn
         if session.turn == self.my_colors.get(game_id):
+            logger.info(f"Our turn ({session.turn}) in {game_url}. Thinking...")
             await self._consider_move(session)
 
     async def _consider_move(self, session: GameSession) -> None:
         # Avoid moving if we are already thinking for this session
-        # (GameManager is a singleton-bot owner, but Bot might have its own lock)
+        game_url = f"https://online-go.com/game/{session.game_id}"
         try:
-            # Check if it's the bot's turn (this is a placeholder,
-            # we should really know our color in each session)
             move_gtp = await self.bot.get_move(session)
+            logger.info(f"Bot selected move: {move_gtp} for {game_url}")
             await self.client.submit_move(session.game_id, move_gtp, session.board_size)
         except Exception as e:
-            logger.error(f"Error generating move for {session.game_id}: {e}")
+            logger.error(f"Error generating move for {game_url}: {e}")
 
     async def run_forever(self) -> None:
         """Main loop for the bot."""

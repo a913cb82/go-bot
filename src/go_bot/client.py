@@ -130,6 +130,7 @@ class OGSClient:
         row, col = gtp_to_ogs(move_gtp, board_size)
         pos = ogs_coords_to_int(row, col, board_size)
 
+        logger.info(f"Submitting move {move_gtp} ({pos}) to game {game_id}")
         await self.sio.emit("game/move", {"game_id": game_id, "move": pos})
 
     async def create_challenge(
@@ -149,4 +150,5 @@ class OGSClient:
         }
         resp = await self.client.post("/api/v1/challenges", json=payload)
         resp.raise_for_status()
-        logger.info(f"Challenge created: {resp.json().get('id')}")
+        challenge_id = resp.json().get("id")
+        logger.info(f"Challenge created SUCCESSFULLY: ID {challenge_id}")
