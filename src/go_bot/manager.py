@@ -20,8 +20,51 @@ class GameManager:
         self.client.on_game_started = self._handle_game_started
         self.client.on_game_move = self._handle_game_move
         self.client.on_game_ended = self._handle_game_ended
+        self.client.on_game_gamedata = self._handle_game_gamedata
 
         self._shutdown_event = asyncio.Event()
+
+    async def _handle_game_gamedata(self, game_id: str, data: Dict[str, Any]) -> None:
+        board_size = data.get("width", 19)
+        if game_id not in self.sessions:
+            self.sessions[game_id] = GameSession(game_id, board_size)
+
+        session = self.sessions[game_id]
+
+        # Reset session to ensure we don't duplicate moves if gamedata comes twice
+        session.board = GameSession(game_id, board_size).board
+        session.moves = []
+        session.turn = "black"
+
+        # Determine our color if not already known
+        black_id = data.get("players", {}).get("black", {}).get("id")
+        white_id = data.get("players", {}).get("white", {}).get("id")
+        if black_id == self.client.user_id:
+            self.my_colors[game_id] = "black"
+        elif white_id == self.client.user_id:
+            self.my_colors[game_id] = "white"
+
+        # Apply all moves from history
+        # OGS gamedata moves are usually in a list: data['moves']
+        moves = data.get("moves", [])
+        for i, move_data in enumerate(moves):
+            color = "black" if i % 2 == 0 else "white"
+            row, col = -1, -1
+            if isinstance(move_data, list):
+                # OGS moves in history are [col, row, time, ...]
+                row, col = move_data[1], move_data[0]
+            elif isinstance(move_data, int):
+                row, col = int_to_ogs_coords(move_data, board_size)
+            elif isinstance(move_data, str):
+                row, col = str_to_ogs(move_data)
+
+            session.apply_move(color, row, col)
+
+        logger.info(f"Initialized game {game_id} with {len(moves)} moves history.")
+
+        # If it's our turn after catching up, consider moving
+        if session.turn == self.my_colors.get(game_id):
+            await self._consider_move(session)
 
     async def _handle_game_ended(self, game_id: str, data: Dict[str, Any]) -> None:
         if game_id in self.sessions:

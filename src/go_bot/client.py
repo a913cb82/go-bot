@@ -53,6 +53,9 @@ class OGSClient:
         self.on_game_ended: Optional[
             Callable[[str, Dict[str, Any]], Awaitable[None]]
         ] = None
+        self.on_game_gamedata: Optional[
+            Callable[[str, Dict[str, Any]], Awaitable[None]]
+        ] = None
 
         self._setup_socket_events()
 
@@ -108,7 +111,8 @@ class OGSClient:
 
         @self.sio.on(f"game/{game_id}/gamedata")  # type: ignore
         async def on_gamedata(data: Dict[str, Any]) -> None:
-            pass
+            if self.on_game_gamedata:
+                await self.on_game_gamedata(game_id, data)
 
         @self.sio.on(f"game/{game_id}/phase")  # type: ignore
         async def on_phase(data: str) -> None:
