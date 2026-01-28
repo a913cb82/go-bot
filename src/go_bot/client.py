@@ -9,6 +9,30 @@ logger = logging.getLogger(__name__)
 
 
 class OGSClient:
+    @classmethod
+    async def login(
+        cls,
+        username: str,
+        password: str,
+        client_id: str = "36ef960a4bd9cf4bc3d6",  # Standard OGS client_id for bots
+        base_url: str = "https://online-go.com",
+    ) -> "OGSClient":
+        """
+        Login with username and application-specific password to get a token.
+        Note: password must be an 'Application Specific Password' generated in OGS settings.
+        """
+        async with httpx.AsyncClient(base_url=base_url) as client:
+            payload = {
+                "grant_type": "password",
+                "username": username,
+                "password": password,
+                "client_id": client_id,
+            }
+            resp = await client.post("/oauth2/token/", data=payload)
+            resp.raise_for_status()
+            token = resp.json()["access_token"]
+            return cls(api_key=token, base_url=base_url)
+
     def __init__(self, api_key: str, base_url: str = "https://online-go.com"):
         self.api_key = api_key
         self.base_url = base_url
