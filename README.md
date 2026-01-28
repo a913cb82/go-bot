@@ -41,15 +41,18 @@ You can connect using either an API Key (recommended) or an Application Specific
 3. Set `OGS_USERNAME` and `OGS_PASSWORD` in your `.env`.
 
 ### 3. Run the Bot (Human SL KataGo)
-Ensure you have the `katago` binary installed and accessible. Then run the bot:
+To run the bot, you need the **KataGo binary** (the engine executable) installed on your system.
 
-```bash
-# To play as a specific human rank, edit BOT_RANK in .env (e.g. 5k, 1d, 9d)
-# Then run the bot using the entry point:
-python3 src/go_bot/main.py
-```
+1.  **Install KataGo:** Download the KataGo binary for your OS from the [KataGo Releases](https://github.com/lightvector/KataGo/releases) or install it via your package manager (e.g., `brew install katago`).
+2.  **Configure .env:**
+    -   `KATAGO_PATH`: The path to the KataGo executable (e.g., `/usr/local/bin/katago` or just `katago` if it's in your PATH).
+    -   `BOT_RANK`: The human rank you want to imitate (e.g., `5k`, `1d`).
+3.  **Run:**
+    ```bash
+    python3 src/go_bot/main.py
+    ```
 
-The bot will automatically load the models from `models/` and use the robust `models/human.cfg` configuration for high-quality human imitation play.
+The bot will automatically load the **model files** (`.bin.gz`) from the `models/` directory (fetched in step 1) and use the `models/human.cfg` configuration.
 
 ## Development Setup
 
