@@ -20,15 +20,16 @@ The "Human SL" model is specifically trained to mimic human play styles rather t
 pip install sgfmill
 ```
 
-### 2. OGS API Key
+### 2. OGS API Key & Configuration
 1. Create a bot account on OGS.
 2. Ask a moderator to flag the account as a "Bot".
 3. Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
 4. Create your local `.env` file:
    ```bash
    cp .env.example .env
-   # Edit .env and replace 'your_api_key_here' with your actual key
+   # Edit .env and replace placeholders with your actual key and desired rank
    ```
+   *Available ranks include: `rank_30k`, `rank_20k`, `rank_10k`, `rank_5k`, `rank_1k`, `rank_1d`, `rank_9d`, etc.*
 
 ### 3. GPU Setup (WSL2 / Linux)
 To enable sub-second moves using your GPU without installing the full CUDA toolkit system-wide, install the required libraries into a local directory:
@@ -45,19 +46,19 @@ Always load your API key from the `.env` file when starting the bot.
 ### KataGo Human SL (GPU Optimized)
 **Recommended.** Uses your GTX 1080 Ti for ~5s latency per move.
 ```bash
-export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey $OGS_API_KEY
+export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey $OGS_API_KEY
 ```
 
 ### KataGo Human SL (CPU Optimized)
 Fallback for systems without a compatible GPU. ~11s latency per move on an 8-core CPU.
 ```bash
-export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey $OGS_API_KEY
+export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey $OGS_API_KEY
 ```
 
 ### Random Bot
 A lightweight Python bot that plays random legal moves. Useful for testing OGS connectivity.
 ```bash
-export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 --apikey $OGS_API_KEY
+export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 --apikey $OGS_API_KEY
 ```
 
 ## Benchmarking
