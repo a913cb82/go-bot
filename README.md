@@ -20,7 +20,14 @@ The "Human SL" model is specifically trained to mimic human play styles rather t
 pip install sgfmill
 ```
 
-### 2. OGS API Key & Configuration
+### 2. Fetch Models
+Download the required neural network models:
+```bash
+./scripts/fetch_models.sh
+```
+This script will create the `models/` directory and download the main network and the human SL weights. The engine configuration (`models/human.cfg`) is already included in the repository.
+
+### 3. OGS API Key & Configuration
 1. Create a bot account on OGS.
 2. Ask a moderator to flag the account as a "Bot".
 3. Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
@@ -31,7 +38,7 @@ pip install sgfmill
    ```
    *Available ranks include: `rank_30k`, `rank_20k`, `rank_10k`, `rank_5k`, `rank_1k`, `rank_1d`, `rank_9d`, etc.*
 
-### 3. GPU Setup (WSL2 / Linux)
+### 4. GPU Setup (WSL2 / Linux) - Optional
 To enable sub-second moves using your GPU without installing the full CUDA toolkit system-wide, install the required libraries into a local directory:
 ```bash
 mkdir -p gpu_libs
@@ -61,6 +68,17 @@ A lightweight Python bot that plays random legal moves. Useful for testing OGS c
 export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 --apikey $OGS_API_KEY
 ```
 
+## Running Multiple Bots
+
+To run multiple bots concurrently (e.g., with different ranks on different accounts), you can override the environment variables inline and run them in the background using `&`:
+
+```bash
+BOT_RANK=rank_20k gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey YOUR_API_KEY_1 &
+BOT_RANK=rank_5k gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey YOUR_API_KEY_2 &
+```
+
+*Note: Each KataGo instance uses ~1.5GB of VRAM. Ensure your GPU has enough memory to support the desired number of concurrent bots.*
+
 ## Benchmarking
 You can verify the move generation speed locally without connecting to OGS:
 ```bash
@@ -75,5 +93,5 @@ python3 scripts/benchmark_bot.py ./scripts/run_katago_cpu.sh
 - `bin/`: KataGo engine binaries (`katago-cpu`, `katago-gpu`).
 - `configs/`: `gtp2ogs` JSON5 configuration files.
 - `models/`: KataGo neural network models and configuration.
-- `scripts/`: Wrapper scripts, GTP engines, and benchmarking utilities.
+- `scripts/`: Wrapper scripts, model fetch script (`fetch_models.sh`), and benchmarking utilities.
 - `gpu_libs/`: (Local) CUDA libraries for the GPU backend.
