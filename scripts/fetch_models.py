@@ -37,7 +37,7 @@ def main() -> None:
     human_model_path = os.path.join(MODELS_DIR, "human_model.bin.gz")
     download_file(HUMAN_MODEL_URL, human_model_path)
 
-    main_model_path = os.path.join(MODELS_DIR, "main_model.bin.gz")
+    main_model_path = os.path.join(MODELS_DIR, "main_b18.bin.gz")
     # Clean up the previous bad download if it exists and is small
     if os.path.exists(main_model_path):
         if os.path.getsize(main_model_path) < 1000000:
@@ -71,7 +71,7 @@ resignMinMovesPerBoardArea = 0.4
 # Max visits 40 is good for pass/resign judgment.
 # For pure imitation, this is sufficient if humanSLChosenMoveProp = 1.0.
 maxVisits = 40
-numSearchThreads = 1
+numSearchThreads = 8
 lagBuffer = 1.0
 
 delayMoveScale = 2.0
@@ -82,7 +82,7 @@ delayMoveMax = 10.0
 # ===========================================================================
 
 # Default profile. Can be overridden via command line: -override-config humanSLProfile=rank_1d
-humanSLProfile = rank_5k
+humanSLProfile = rank_20k
 
 # Probability to play a HUMAN-like move vs KataGo's move.
 humanSLChosenMoveProp = 1.0

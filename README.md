@@ -1,88 +1,78 @@
-# Go Bot Project
+# OGS KataGo Human SL Bot
 
-This project contains Python-based Go bots and configuration to run them on [Online-Go.com (OGS)](https://online-go.com) using `gtp2ogs`.
+This project connects [KataGo](https://github.com/lightvector/KataGo) (using the Human Supervised Learning model) to [Online-Go.com (OGS)](https://online-go.com) using the [gtp2ogs](https://github.com/pro-forma/gtp2ogs) bridge.
+
+The "Human SL" model is specifically trained to mimic human play styles rather than playing optimally, making it a more natural opponent for human players on OGS.
 
 ## Prerequisites
 
-1.  **Node.js & npm**: Required to run `gtp2ogs`.
-    ```bash
-    # Install gtp2ogs globally
-    npm install -g gtp2ogs
-    ```
-2.  **Python 3**: For the random bot and helper scripts.
-3.  **KataGo**: (Optional) Required for the `katago_human` bot.
+- **Node.js & npm**: To run the `gtp2ogs` bridge.
+  ```bash
+  npm install -g gtp2ogs
+  ```
+- **Python 3**: For helper scripts and the random testing bot.
+- **KataGo Binaries**: Pre-compiled CPU and GPU binaries are included in `bin/`.
 
 ## Setup
 
-1.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt # (Ensure sgfmill is installed)
-    ```
-
-2.  **GPU Setup (WSL2/Linux)**:
-    To enable the GPU bot, you need to install specific CUDA libraries locally to match the KataGo binary:
-    ```bash
-    mkdir -p gpu_libs
-    pip install nvidia-cudnn-cu12==8.9.7.29 --target gpu_libs --no-deps
-    ```
-    *Note: The `scripts/run_katago_gpu.sh` script is configured to look in `gpu_libs` and your python environment for the required libraries.*
-
-3.  **Bot Accounts**:
-    - You need a separate account on OGS for your bot.
-    - Ask a moderator to flag the account as a "Bot".
-    - Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
-
-3.  **Configuration**:
-    - Create a `.env` file from `.env.example` and add your OGS Bot API Key:
-        ```bash
-        cp .env.example .env
-        # Edit .env and replace 'your_api_key_here'
-        ```
-    - The configuration files in `configs/` use `"YOUR_API_KEY_HERE"` as a placeholder. The API key should be passed via the `--apikey` flag or environment variable.
-
-## Running the Bots
-
-To run the bots, you need to load the environment variables from `.env` and pass the API key to `gtp2ogs`.
-
-### Random Bot
-Plays random legal moves. Extremely fast.
+### 1. Install Dependencies
 ```bash
-export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 --apikey $OGS_API_KEY
+pip install sgfmill
 ```
 
-### KataGo Human SL Bot (CPU Optimized)
-Uses KataGo with a Human SL model. Optimized for your 8-core CPU.
-*   **Performance:** ~11 seconds per move.
-*   **Concurrency:** Limited to 5 games to ensure stability.
-```bash
-export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey $OGS_API_KEY
-```
+### 2. OGS API Key
+1. Create a bot account on OGS.
+2. Ask a moderator to flag the account as a "Bot".
+3. Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
+4. Create your local `.env` file:
+   ```bash
+   cp .env.example .env
+   # Edit .env and replace 'your_api_key_here' with your actual key
+   ```
 
-### KataGo Human SL Bot (GPU Optimized)
-Uses KataGo with CUDA 12 backend on your GTX 1080 Ti.
-*   **Performance:** ~5 seconds per move.
-*   **Concurrency:** Can handle more concurrent games.
+### 3. GPU Setup (WSL2 / Linux)
+To enable sub-second moves using your GPU without installing the full CUDA toolkit system-wide, install the required libraries into a local directory:
+```bash
+mkdir -p gpu_libs
+pip install nvidia-cudnn-cu12==8.9.7.29 --target gpu_libs --no-deps
+```
+*The `scripts/run_katago_gpu.sh` script is pre-configured to find these libraries.*
+
+## Running the Bot
+
+Always load your API key from the `.env` file when starting the bot.
+
+### KataGo Human SL (GPU Optimized)
+**Recommended.** Uses your GTX 1080 Ti for ~5s latency per move.
 ```bash
 export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey $OGS_API_KEY
 ```
 
-## Benchmarking Latency
-Verify move generation speed:
+### KataGo Human SL (CPU Optimized)
+Fallback for systems without a compatible GPU. ~11s latency per move on an 8-core CPU.
 ```bash
-# Benchmark Random Bot
-python3 scripts/benchmark_bot.py python3 scripts/random_gtp.py
-
-# Benchmark KataGo CPU Bot
-python3 scripts/benchmark_bot.py ./scripts/run_katago_cpu.sh
-
-# Benchmark KataGo GPU Bot
-python3 scripts/benchmark_bot.py ./scripts/run_katago_gpu.sh
+export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey $OGS_API_KEY
 ```
 
-## Directory Structure
--   `src/go_bot/`: Python source code.
--   `scripts/`: Helper scripts (`benchmark_bot.py`, `run_katago_cpu.sh`, `run_katago_gpu.sh`).
--   `configs/`: `gtp2ogs` configurations.
--   `bin/`: Compiled binaries (`katago-cpu`, `katago-gpu`).
--   `models/`: KataGo models (`main_b18.bin.gz`, `human_model.bin.gz`).
--   `gpu_libs/`: Local CUDA libraries for GPU bot.
+### Random Bot
+A lightweight Python bot that plays random legal moves. Useful for testing OGS connectivity.
+```bash
+export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 --apikey $OGS_API_KEY
+```
+
+## Benchmarking
+You can verify the move generation speed locally without connecting to OGS:
+```bash
+# Benchmark GPU Bot
+python3 scripts/benchmark_bot.py ./scripts/run_katago_gpu.sh
+
+# Benchmark CPU Bot
+python3 scripts/benchmark_bot.py ./scripts/run_katago_cpu.sh
+```
+
+## Project Structure
+- `bin/`: KataGo engine binaries (`katago-cpu`, `katago-gpu`).
+- `configs/`: `gtp2ogs` JSON5 configuration files.
+- `models/`: KataGo neural network models and configuration.
+- `scripts/`: Wrapper scripts and benchmarking utilities.
+- `gpu_libs/`: (Local) CUDA libraries for the GPU backend.
