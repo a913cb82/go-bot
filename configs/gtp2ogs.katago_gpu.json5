@@ -3,8 +3,9 @@
         command: ["./scripts/run_katago_gpu.sh"],
         manager: "pool",
 
-        // On GPU, 1-2 instances usually saturate the card.
-        // We use a pool to handle many games sequentially.
+        // Each KataGo instance uses ~1.5GB VRAM.
+        // 1 instance is usually sufficient to handle 100+ concurrent games
+        // due to sub-second move generation times.
         instances: 1,
     },
 
@@ -12,7 +13,7 @@
     allowed_time_control_systems: ["byoyomi", "fischer", "simple"],
 
     allowed_blitz_settings: {
-        concurrent_games: 1,
+        concurrent_games: 20,
         simple: {
             per_move_time_range: [1, 60],
         },
@@ -29,7 +30,7 @@
     },
 
     allowed_rapid_settings: {
-        concurrent_games: 5,
+        concurrent_games: 50,
         simple: {
             per_move_time_range: [5, 30],
         },
@@ -46,7 +47,7 @@
     },
 
     allowed_live_settings: {
-        concurrent_games: 10,
+        concurrent_games: 100,
         simple: {
             per_move_time_range: [10, 300],
         },

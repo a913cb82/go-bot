@@ -44,13 +44,13 @@ pip install nvidia-cudnn-cu12==8.9.7.29 --target gpu_libs --no-deps
 Always load your API key from the `.env` file when starting the bot.
 
 ### KataGo Human SL (GPU Optimized)
-**Recommended.** Uses your GTX 1080 Ti for ~5s latency per move.
+**Recommended.** High performance inference. Expected sub-second move time on modern GPUs (~1.5GB VRAM per instance).
 ```bash
 export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey $OGS_API_KEY
 ```
 
 ### KataGo Human SL (CPU Optimized)
-Fallback for systems without a compatible GPU. ~11s latency per move on an 8-core CPU.
+Fallback for systems without a compatible GPU. Move time depends on CPU performance; expected ~10-20s per move on modern multi-core CPUs.
 ```bash
 export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey $OGS_API_KEY
 ```
@@ -75,5 +75,5 @@ python3 scripts/benchmark_bot.py ./scripts/run_katago_cpu.sh
 - `bin/`: KataGo engine binaries (`katago-cpu`, `katago-gpu`).
 - `configs/`: `gtp2ogs` JSON5 configuration files.
 - `models/`: KataGo neural network models and configuration.
-- `scripts/`: Wrapper scripts and benchmarking utilities.
+- `scripts/`: Wrapper scripts, GTP engines, and benchmarking utilities.
 - `gpu_libs/`: (Local) CUDA libraries for the GPU backend.
