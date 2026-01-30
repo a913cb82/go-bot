@@ -1,0 +1,57 @@
+{
+    bot: {
+        command: ["./scripts/run_katago_cpu.sh"],
+        manager: "pool",
+        instances: 5,
+    },
+
+    allowed_board_sizes: "all",
+    allowed_time_control_systems: ["byoyomi", "fischer", "simple"],
+
+    // CPU is slow (~20s/move), disable Blitz
+    allowed_blitz_settings: null,
+
+    allowed_rapid_settings: {
+        concurrent_games: 5,
+        simple: {
+            per_move_time_range: [5, 30],
+        },
+        byoyomi: {
+            main_time_range: [0, 3600],
+            period_time_range: [5, 30],
+            periods_range: [1, 10],
+        },
+        fischer: {
+            initial_time_range: [5, 600],
+            max_time_range: [5, 7200],
+            time_increment_range: [3, 30],
+        },
+    },
+
+    allowed_live_settings: {
+        concurrent_games: 5,
+        simple: {
+            per_move_time_range: [10, 300],
+        },
+        byoyomi: {
+            main_time_range: [0, 3600],
+            period_time_range: [10, 300],
+            periods_range: [1, 10],
+        },
+        fischer: {
+            initial_time_range: [10, 3600],
+            max_time_range: [5, 7200],
+            time_increment_range: [10, 300],
+        },
+    },
+
+    allowed_correspondence_settings: null,
+    allow_ranked: true,
+    allow_unranked: false,
+    allowed_rank_range: ["30k", "9p"],
+    allow_ranked_handicap: true,
+    allowed_komi_range: [-100, 100],
+    min_move_time: 0,
+    verbosity: 0,
+    log_game_chat: true,
+}

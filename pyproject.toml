@@ -1,31 +1,17 @@
 [project]
 name = "go_bot"
 version = "0.1.0"
-description = "A bot for something"
+description = "Go Bot scripts for gtp2ogs"
 requires-python = ">=3.10"
 dependencies = [
     "sgfmill",
-    "httpx",
-    "python-socketio",
-    "python-dotenv",
-    "aiohttp",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest",
-    "pytest-asyncio",
-    "pytest-timeout",
-    "pytest-mock",
-    "pytest-cov",
-    "respx",
     "ruff",
     "mypy",
 ]
-
-[tool.pytest.ini_options]
-timeout = 30
-asyncio_mode = "auto"
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -107,8 +93,4 @@ show_error_codes = true
 
 [[tool.mypy.overrides]]
 module = "sgfmill.*"
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "socketio.*"
 ignore_missing_imports = true

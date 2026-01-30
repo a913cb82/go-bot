@@ -7,10 +7,28 @@ __pycache__/
 .ruff_cache/
 .coverage
 *.egg-info/
+
+# Large model files
 models/*.bin.gz
 models/*.gz
+
+# Logs
 *.log
+gtp_logs/
+bin/gtp_logs/
+
+# Build artifacts
 dist/
 build/
+
+# Local env
 .env
 .DS_Store
+
+# Binaries and local libs
+bin/katago-cpu
+bin/katago-gpu
+gpu_libs/
+bin/*.zip
+bin/*.zip.*
+bin/nvidia.icd

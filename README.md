@@ -1,65 +1,88 @@
-# Go Bot (OGS AI)
+# Go Bot Project
 
-An AI bot for playing on [Online-Go.com (OGS)](https://online-go.com).
+This project contains Python-based Go bots and configuration to run them on [Online-Go.com (OGS)](https://online-go.com) using `gtp2ogs`.
 
-## Documentation & References
+## Prerequisites
 
-- **OGS API Documentation:** [https://online-go.com/api-docs/#/](https://online-go.com/api-docs/#/)
-- **KataGo Engine:** [https://github.com/lightvector/KataGo](https://github.com/lightvector/KataGo)
-- **KataGo Human SL (Supervised Learning):**
-    - [KataGo v1.15.0 Release Notes](https://github.com/lightvector/KataGo/releases/tag/v1.15.0) (Contains Human SL model links)
-    - [Human SL Analysis Guide](https://github.com/lightvector/KataGo/blob/master/docs/Analysis_Engine.md#human-sl-analysis-guide)
-- **Architecture:** See [ARCHITECTURE.md](ARCHITECTURE.md)
-- **Implementation Plan:** See [PLAN.md](PLAN.md)
-
-## Usage
-
-### 1. Fetch Models
-First, download the required KataGo models and generate the configuration:
-```bash
-python3 scripts/fetch_models.py
-```
-
-### 2. OGS Credentials & Configuration
-Copy the example environment file and fill in your credentials:
-```bash
-cp .env.example .env
-# Edit .env with your OGS_API_KEY or OGS_USERNAME/OGS_PASSWORD
-```
-
-You can connect using either an API Key (recommended) or an Application Specific Password.
-
-#### Option A: API Key (Recommended)
-1. Create a bot account on OGS.
-2. Request bot status from OGS moderators.
-3. Go to the bot's profile and generate an API Key.
-4. Set `OGS_API_KEY` in your `.env`.
-
-#### Option B: Username & Application Password
-1. Go to OGS Settings -> "Application Specific Passwords".
-2. Generate a new password for the bot.
-3. Set `OGS_USERNAME` and `OGS_PASSWORD` in your `.env`.
-
-### 3. Run the Bot (Human SL KataGo)
-To run the bot, you need the **KataGo binary** (the engine executable) installed on your system.
-
-1.  **Install KataGo:** Download the KataGo binary for your OS from the [KataGo Releases](https://github.com/lightvector/KataGo/releases) or install it via your package manager (e.g., `brew install katago`).
-2.  **Configure .env:**
-    -   `KATAGO_PATH`: The path to the KataGo executable (e.g., `/usr/local/bin/katago` or just `katago` if it's in your PATH).
-    -   `BOT_RANK`: The human rank you want to imitate (e.g., `5k`, `1d`).
-3.  **Run:**
+1.  **Node.js & npm**: Required to run `gtp2ogs`.
     ```bash
-    python3 src/go_bot/main.py
+    # Install gtp2ogs globally
+    npm install -g gtp2ogs
+    ```
+2.  **Python 3**: For the random bot and helper scripts.
+3.  **KataGo**: (Optional) Required for the `katago_human` bot.
+
+## Setup
+
+1.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt # (Ensure sgfmill is installed)
     ```
 
-The bot will automatically load the **model files** (`.bin.gz`) from the `models/` directory (fetched in step 1) and use the `models/human.cfg` configuration.
+2.  **GPU Setup (WSL2/Linux)**:
+    To enable the GPU bot, you need to install specific CUDA libraries locally to match the KataGo binary:
+    ```bash
+    mkdir -p gpu_libs
+    pip install nvidia-cudnn-cu12==8.9.7.29 --target gpu_libs --no-deps
+    ```
+    *Note: The `scripts/run_katago_gpu.sh` script is configured to look in `gpu_libs` and your python environment for the required libraries.*
 
-## Development Setup
+3.  **Bot Accounts**:
+    - You need a separate account on OGS for your bot.
+    - Ask a moderator to flag the account as a "Bot".
+    - Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
 
-This project uses `pre-commit` with `ruff` and `mypy` for quality control.
+3.  **Configuration**:
+    - Create a `.env` file from `.env.example` and add your OGS Bot API Key:
+        ```bash
+        cp .env.example .env
+        # Edit .env and replace 'your_api_key_here'
+        ```
+    - The configuration files in `configs/` use `"YOUR_API_KEY_HERE"` as a placeholder. The API key should be passed via the `--apikey` flag or environment variable.
 
+## Running the Bots
+
+To run the bots, you need to load the environment variables from `.env` and pass the API key to `gtp2ogs`.
+
+### Random Bot
+Plays random legal moves. Extremely fast.
 ```bash
-# Install dependencies (assuming a virtual environment is active)
-pip install -e ".[dev]"
-pre-commit install
+export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 --apikey $OGS_API_KEY
 ```
+
+### KataGo Human SL Bot (CPU Optimized)
+Uses KataGo with a Human SL model. Optimized for your 8-core CPU.
+*   **Performance:** ~11 seconds per move.
+*   **Concurrency:** Limited to 5 games to ensure stability.
+```bash
+export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey $OGS_API_KEY
+```
+
+### KataGo Human SL Bot (GPU Optimized)
+Uses KataGo with CUDA 12 backend on your GTX 1080 Ti.
+*   **Performance:** ~5 seconds per move.
+*   **Concurrency:** Can handle more concurrent games.
+```bash
+export $(cat .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey $OGS_API_KEY
+```
+
+## Benchmarking Latency
+Verify move generation speed:
+```bash
+# Benchmark Random Bot
+python3 scripts/benchmark_bot.py python3 scripts/random_gtp.py
+
+# Benchmark KataGo CPU Bot
+python3 scripts/benchmark_bot.py ./scripts/run_katago_cpu.sh
+
+# Benchmark KataGo GPU Bot
+python3 scripts/benchmark_bot.py ./scripts/run_katago_gpu.sh
+```
+
+## Directory Structure
+-   `src/go_bot/`: Python source code.
+-   `scripts/`: Helper scripts (`benchmark_bot.py`, `run_katago_cpu.sh`, `run_katago_gpu.sh`).
+-   `configs/`: `gtp2ogs` configurations.
+-   `bin/`: Compiled binaries (`katago-cpu`, `katago-gpu`).
+-   `models/`: KataGo models (`main_b18.bin.gz`, `human_model.bin.gz`).
+-   `gpu_libs/`: Local CUDA libraries for GPU bot.

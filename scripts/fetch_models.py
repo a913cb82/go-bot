@@ -5,7 +5,7 @@ import sys
 
 MODELS_DIR = "models"
 HUMAN_MODEL_URL = "https://github.com/lightvector/KataGo/releases/download/v1.15.0/b18c384nbt-humanv0.bin.gz"
-MAIN_MODEL_URL = "https://media.katagotraining.org/uploaded/networks/models/kata1/kata1-b28c512nbt-s12192929536-d5655876072.bin.gz"
+MAIN_MODEL_URL = "https://media.katagotraining.org/uploaded/networks/models/kata1/kata1-b18c384nbt-s9996604416-d4316597426.bin.gz"
 
 
 def download_file(url: str, dest_path: str) -> None:
