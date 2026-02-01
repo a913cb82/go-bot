@@ -6,13 +6,15 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 export PATH="$PROJECT_ROOT/bin:$PATH"
 
 # THE WSL2 GPU FIX: Use Windows host driver libs and ICD, AND local libs
-# We need to find where pip installed nvidia-cublas (system venv) and nvidia-cudnn (local gpu_libs)
-VENV_LIB="$PROJECT_ROOT/.venv/lib/python3.10/site-packages"
-CUBLAS_LIB="$VENV_LIB/nvidia/cublas/lib"
-# Local install of cudnn 8.9.7
-CUDNN_LIB="$PROJECT_ROOT/gpu_libs/nvidia/cudnn/lib"
+# We search in gpu_libs (manual install) and .venv (pip install)
+VENV_PACKAGES="$PROJECT_ROOT/.venv/lib/python3.10/site-packages"
+GPU_LIBS="$PROJECT_ROOT/gpu_libs"
 
-export LD_LIBRARY_PATH="$CUBLAS_LIB:$CUDNN_LIB:/usr/lib/wsl/lib:$LD_LIBRARY_PATH"
+# Search paths for cublas and cudnn
+CUBLAS_PATH=$(find "$GPU_LIBS" "$VENV_PACKAGES" -name "libcublas.so.12" -printf '%h\n' 2>/dev/null | head -n 1)
+CUDNN_PATH=$(find "$GPU_LIBS" "$VENV_PACKAGES" -name "libcudnn.so.8" -printf '%h\n' 2>/dev/null | head -n 1)
+
+export LD_LIBRARY_PATH="$CUBLAS_PATH:$CUDNN_PATH:/usr/lib/wsl/lib:$LD_LIBRARY_PATH"
 
 MAIN_MODEL="$PROJECT_ROOT/models/main_b18.bin.gz"
 HUMAN_MODEL="$PROJECT_ROOT/models/human_model.bin.gz"

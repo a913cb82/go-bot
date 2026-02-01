@@ -11,7 +11,7 @@ The "Human SL" model is specifically trained to mimic human play styles rather t
   npm install -g gtp2ogs
   ```
 - **KataGo Binaries**: Pre-compiled CPU and GPU binaries are included in `bin/`.
-- **Python 3 (Optional)**: Only required if you intend to run the `random` bot or local benchmarking scripts.
+- **Python 3.10**: Required for GPU library compatibility and helper scripts.
 
 ## Setup
 
@@ -28,12 +28,12 @@ This script will create the `models/` directory and download the main network an
 3. Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
 
 ### 3. GPU Setup (Optional)
-To enable sub-second moves using your GPU without installing the full CUDA toolkit system-wide, install the required libraries into a local directory:
+To enable sub-second moves using your GPU without installing the full CUDA toolkit system-wide, install the required libraries into a local directory using **Python 3.10**:
 ```bash
 mkdir -p gpu_libs
-pip install nvidia-cudnn-cu12==8.9.7.29 --target gpu_libs --no-deps
+pip install nvidia-cudnn-cu12==8.9.7.29 nvidia-cublas-cu12 --target gpu_libs --no-deps
 ```
-*The `scripts/run_katago_gpu.sh` script is pre-configured to find these libraries. Note: `pip` requires Python.*
+*The `scripts/run_katago_gpu.sh` script is pre-configured to find these libraries in `gpu_libs/` or a `.venv/`.*
 
 ## Running the Bot
 
