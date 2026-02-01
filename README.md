@@ -27,18 +27,12 @@ Download the required neural network models:
 ```
 This script will create the `models/` directory and download the main network and the human SL weights. The engine configuration (`models/human.cfg`) is already included in the repository.
 
-### 3. OGS API Key & Configuration
-1. Create a bot account on OGS.
-2. Ask a moderator to flag the account as a "Bot".
+### 3. OGS API Key
+1. Create a bot account on [OGS](https://online-go.com).
+2. Ask a moderator (e.g., in the "Support" channel) to flag the account as a "Bot".
 3. Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
-4. Create your local `.env` file:
-   ```bash
-   cp .env.example .env
-   # Edit .env and replace placeholders with your actual key and desired rank
-   ```
-   *Available ranks include: `rank_30k`, `rank_20k`, `rank_10k`, `rank_5k`, `rank_1k`, `rank_1d`, `rank_9d`, etc.*
 
-### 4. GPU Setup (WSL2 / Linux) - Optional
+### 4. GPU Setup (Optional)
 To enable sub-second moves using your GPU without installing the full CUDA toolkit system-wide, install the required libraries into a local directory:
 ```bash
 mkdir -p gpu_libs
@@ -48,29 +42,37 @@ pip install nvidia-cudnn-cu12==8.9.7.29 --target gpu_libs --no-deps
 
 ## Running the Bot
 
-Always load your API key from the `.env` file when starting the bot.
+Start the bot by providing your API key and (optionally) the desired rank profile inline.
+
+### Available Rank Profiles
+The Human SL model supports a wide range of imitation styles:
+- **Modern Human:** `rank_20k` through `rank_9d` (e.g., `rank_5k`).
+- **Pre-AlphaZero:** `preaz_20k` through `preaz_9d` (Traditional opening styles).
+- **Historical Pro:** `proyear_1800` through `proyear_2023` (Imitates styles from specific eras).
+
+*Note: For high-dan/pro ranks, the model's actual strength may not reach the target without increasing search visits (config settings), as it primarily mimics style.*
 
 ### KataGo Human SL (GPU Optimized)
 **Recommended.** High performance inference. Expected sub-second move time on modern GPUs (~1.5GB VRAM per instance).
 ```bash
-export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey $OGS_API_KEY
+BOT_RANK=rank_20k gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey YOUR_API_KEY
 ```
 
 ### KataGo Human SL (CPU Optimized)
 Fallback for systems without a compatible GPU. Move time depends on CPU performance; expected ~10-20s per move on modern multi-core CPUs.
 ```bash
-export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey $OGS_API_KEY
+BOT_RANK=rank_20k gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey YOUR_API_KEY
 ```
 
 ### Random Bot
 A lightweight Python bot that plays random legal moves. Useful for testing OGS connectivity.
 ```bash
-export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 --apikey $OGS_API_KEY
+gtp2ogs -c configs/gtp2ogs.random.json5 --apikey YOUR_API_KEY
 ```
 
-## Running Multiple Bots
+## Running Multiple Bots (Background)
 
-To run multiple bots concurrently, redirect their output to separate log files in the `gtp_logs/` directory and run them in the background using `&`:
+To run multiple bots concurrently, or to run a bot in the background, redirect output to a log file in the `gtp_logs/` directory and use `&`:
 
 ```bash
 # Bot 1: 20k account
