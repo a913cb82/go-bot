@@ -15,7 +15,6 @@ models/*.gz
 # Logs
 *.log
 gtp_logs/
-bin/gtp_logs/
 
 # Build artifacts
 dist/
@@ -26,9 +25,5 @@ build/
 .DS_Store
 
 # Binaries and local libs
-bin/katago-cpu
-bin/katago-gpu
+bin/
 gpu_libs/
-bin/*.zip
-bin/*.zip.*
-bin/nvidia.icd
