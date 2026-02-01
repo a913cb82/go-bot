@@ -10,35 +10,30 @@ The "Human SL" model is specifically trained to mimic human play styles rather t
   ```bash
   npm install -g gtp2ogs
   ```
-- **Python 3**: For helper scripts and the random testing bot.
 - **KataGo Binaries**: Pre-compiled CPU and GPU binaries are included in `bin/`.
+- **Python 3 (Optional)**: Only required if you intend to run the `random` bot or local benchmarking scripts.
 
 ## Setup
 
-### 1. Install Dependencies
-```bash
-pip install sgfmill
-```
-
-### 2. Fetch Models
+### 1. Fetch Models
 Download the required neural network models:
 ```bash
 ./scripts/fetch_models.sh
 ```
 This script will create the `models/` directory and download the main network and the human SL weights. The engine configuration (`models/human.cfg`) is already included in the repository.
 
-### 3. OGS API Key
+### 2. OGS API Key
 1. Create a bot account on [OGS](https://online-go.com).
 2. Ask a moderator (e.g., in the "Support" channel) to flag the account as a "Bot".
 3. Log in to the bot account, go to **Settings** -> **Bot Settings**, and generate an **API Key**.
 
-### 4. GPU Setup (Optional)
+### 3. GPU Setup (Optional)
 To enable sub-second moves using your GPU without installing the full CUDA toolkit system-wide, install the required libraries into a local directory:
 ```bash
 mkdir -p gpu_libs
 pip install nvidia-cudnn-cu12==8.9.7.29 --target gpu_libs --no-deps
 ```
-*The `scripts/run_katago_gpu.sh` script is pre-configured to find these libraries.*
+*The `scripts/run_katago_gpu.sh` script is pre-configured to find these libraries. Note: `pip` requires Python.*
 
 ## Running the Bot
 
@@ -65,7 +60,7 @@ BOT_RANK=rank_20k gtp2ogs -c configs/gtp2ogs.katago_cpu.json5 --apikey YOUR_API_
 ```
 
 ### Random Bot
-A lightweight Python bot that plays random legal moves. Useful for testing OGS connectivity.
+A lightweight Python bot that plays random legal moves. Useful for testing OGS connectivity. (Requires `python3` and `pip install sgfmill`).
 ```bash
 gtp2ogs -c configs/gtp2ogs.random.json5 --apikey YOUR_API_KEY
 ```
