@@ -70,12 +70,21 @@ export $(grep -v '^#' .env | xargs) && gtp2ogs -c configs/gtp2ogs.random.json5 -
 
 ## Running Multiple Bots
 
-To run multiple bots concurrently (e.g., with different ranks on different accounts), you can override the environment variables inline and run them in the background using `&`:
+To run multiple bots concurrently, redirect their output to separate log files in the `gtp_logs/` directory and run them in the background using `&`:
 
 ```bash
-BOT_RANK=rank_20k gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey YOUR_API_KEY_1 &
-BOT_RANK=rank_5k gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey YOUR_API_KEY_2 &
+# Bot 1: 20k account
+BOT_RANK=rank_20k gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey KEY1 > gtp_logs/bot20k.log 2>&1 &
+
+# Bot 2: 5k account
+BOT_RANK=rank_5k gtp2ogs -c configs/gtp2ogs.katago_gpu.json5 --apikey KEY2 > gtp_logs/bot5k.log 2>&1 &
 ```
+
+### Managing Bots
+- **Monitor activity:** Use `tail -f gtp_logs/bot20k.log` to watch a bot's real-time logs.
+- **Verify Rank:** Look for `DEBUG: Setting KataGo rank profile to...` in the log file to confirm the rank was passed correctly.
+- **List running instances:** Use `pgrep -af gtp2ogs` to see all active bots and their ranks.
+- **Stop all bots:** Use `pkill -f gtp2ogs` to kill all running instances.
 
 *Note: Each KataGo instance uses ~1.5GB of VRAM. Ensure your GPU has enough memory to support the desired number of concurrent bots.*
 

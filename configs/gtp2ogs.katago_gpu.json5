@@ -13,7 +13,7 @@
     allowed_time_control_systems: ["byoyomi", "fischer", "simple"],
 
     allowed_blitz_settings: {
-        concurrent_games: 20,
+        concurrent_games: 2,
         simple: {
             per_move_time_range: [1, 60],
         },
@@ -30,7 +30,7 @@
     },
 
     allowed_rapid_settings: {
-        concurrent_games: 50,
+        concurrent_games: 5,
         simple: {
             per_move_time_range: [5, 30],
         },
@@ -47,7 +47,7 @@
     },
 
     allowed_live_settings: {
-        concurrent_games: 100,
+        concurrent_games: 10,
         simple: {
             per_move_time_range: [10, 300],
         },
@@ -67,5 +67,6 @@
     allow_ranked: true,
     allow_unranked: false,
     allowed_rank_range: ["30k", "9p"],
+    status_update_frequency : 300000,
     verbosity: 0,
 }

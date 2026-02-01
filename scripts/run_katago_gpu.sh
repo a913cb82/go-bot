@@ -21,6 +21,7 @@ CONFIG_PATH="$PROJECT_ROOT/models/human.cfg"
 # Optional rank override
 ARGS=()
 if [ -n "$BOT_RANK" ]; then
+    echo "Setting KataGo rank profile to $BOT_RANK" >&2
     ARGS+=("-override-config" "humanSLProfile=$BOT_RANK")
 fi
 
