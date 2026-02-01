@@ -10,7 +10,11 @@ The "Human SL" model is specifically trained to mimic human play styles rather t
   ```bash
   npm install -g gtp2ogs
   ```
-- **KataGo Binaries**: Pre-compiled CPU and GPU binaries are included in `bin/`.
+- **KataGo Binaries**: NOT included in the repo (`bin/` is git-ignored). Download KataGo v1.16.4 and place the executables at `bin/katago-cpu` and `bin/katago-gpu`:
+  ```bash
+  ./scripts/fetch_binaries.sh
+  ```
+  See the provenance header in `scripts/fetch_binaries.sh` for download URLs and checksums.
 - **Python 3.10**: Required for GPU library compatibility and helper scripts.
 
 ## Setup
@@ -96,7 +100,7 @@ python3 scripts/benchmark_bot.py ./scripts/run_katago_cpu.sh
 ```
 
 ## Project Structure
-- `bin/`: KataGo engine binaries (`katago-cpu`, `katago-gpu`).
+- `bin/`: KataGo engine binaries (`katago-cpu`, `katago-gpu`) — not committed; fetch with `scripts/fetch_binaries.sh`.
 - `configs/`: `gtp2ogs` JSON5 configuration files.
 - `models/`: KataGo neural network models and configuration.
 - `scripts/`: Wrapper scripts, model fetch script (`fetch_models.sh`), and benchmarking utilities.
