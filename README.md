@@ -1,6 +1,6 @@
 # OGS KataGo Human SL Bot
 
-This project connects [KataGo](https://github.com/lightvector/KataGo) (using the Human Supervised Learning model) to [Online-Go.com (OGS)](https://online-go.com) using the [gtp2ogs](https://github.com/pro-forma/gtp2ogs) bridge.
+This project connects [KataGo](https://github.com/lightvector/KataGo) (using the Human Supervised Learning model) to [Online-Go.com (OGS)](https://online-go.com) using the [gtp2ogs](https://github.com/online-go/gtp2ogs) bridge.
 
 The "Human SL" model is specifically trained to mimic human play styles rather than playing optimally, making it a more natural opponent for human players on OGS.
 
